@@ -1,6 +1,8 @@
 #idea stuff
 *.idea/
 
+#submissions stuff
+*.zip
 
 # Windows image file caches
 Thumbs.db
