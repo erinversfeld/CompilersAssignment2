@@ -26,6 +26,11 @@ def main():
         line_num = str(error.args[0])
         w.write(error_message+line_num)
 
+    if not text:
+        error_message = 'semantic error on line '
+        line_num = str(2)
+        w.write(error_message+line_num)
+
     w.close()
 
 if __name__=="__main__":
