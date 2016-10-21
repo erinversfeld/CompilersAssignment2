@@ -1,3 +1,4 @@
+#provided courtesy of UCT CS department angels
 from ply import yacc
 from lex_bla import tokens
 import os
@@ -87,14 +88,9 @@ def print_tree(outfile, tupletree, depth=0):
             print("\t"*(depth+1), item)
 
 
-def generate_tree():
-    #modified to suit my solution better
-    fileName = str(sys.argv[1])
-    file = open(fileName, 'r')
-    line = file.read()
-    parser = yacc.yacc()
-
-    return parser.parse(line);
+def generate_tree(source):
+    result = parser.parse(source)
+    return result
 
 
 parser = yacc.yacc()

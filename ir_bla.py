@@ -1,5 +1,5 @@
 from llvmlite import ir
-from my_parse_bla import get_tree
+from parse_bla import generate_tree
 import sys
 
 last_var = ""
@@ -57,9 +57,10 @@ builder = ir.IRBuilder(block)
 
 
 def get_module():
+    inputfile = open(args[1], 'r').read()
     filename = str(args[1])[:len(args[1]) - 3] + 'ir'
     output = open(filename, 'w')
-    tree = get_tree()
+    tree = generate_tree(inputfile)
 
     code_gen(tree)
     builder.ret(builder.load(var_dict[last_var]))  # Specifies the return value
@@ -68,9 +69,10 @@ def get_module():
 
 
 def main():
-    fileName = str(sys.argv[1])
-    output = open(fileName[:len(fileName) - 3] + 'ir', 'w')
-    tree = get_tree(output)
+    inputfile = open(args[1], 'r').read()
+    filename = str(sys.argv[1])
+    output = open(filename[:len(filename) - 3] + 'ir', 'w')
+    tree = generate_tree(inputfile)
 
     builder.ret(builder.load(var_dict[last_var]))
     output.write(str(module))

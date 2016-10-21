@@ -1,4 +1,4 @@
-from my_parse_bla import get_tree
+from parse_bla import generate_tree
 import sys
 
 
@@ -24,16 +24,16 @@ def error_check(output, tree, sym_table, line_num):
                 #error
                 if t_[1] not in sym_table:
                     output.write('semantic error on line ' + str(line_num))
-                    print('semantic error on line ' + str(line_num))
                     break
 
 
 def main():
     args = sys.argv
+    inputfile = open(args[1], 'r').read()
     filename = str(args[1])[:len(args[1]) - 3] + '.err'
     output = open(filename, 'w')
 
-    tree = get_tree(output)
+    tree = generate_tree(inputfile)
 
     if tree:
         error_check(output, tree, sym_table=[], line_num=0)

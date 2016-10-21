@@ -54,9 +54,5 @@ def main():
     else:
         print("Specify filename, e.g. lex_bla.ply my_program.bla")
 
-def set_output_file(file):
-    global outfile
-    outfile = file
-
 if __name__ == "__main__":
     main()
