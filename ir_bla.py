@@ -20,29 +20,93 @@ def code_gen(tree):
         var_dict[last_var] = builder.alloca(ir.IntType(32))
         if isinstance(tree[1][1], tuple):
             t_ = list(tree[1][1])
+            print(t_)
             builder.store(code_gen(t_), var_dict[last_var])
-        elif not isinstance(tree[1][1],list) and not isinstance(tree[1][1], tuple):
+        elif not isinstance(tree[1][1],list):
+            print([tree[1][1]])
+
+            list_ = tree[1][1].split(',')
+            value = list_[1]
+            print(value)
+            print(value.isalpha())
+            print(value.isnumeric())
+            return(builder.load(var_dict[tree[0]]))
+
+        elif tree[0].isnumeric():
+            return(ir.Constant(ir.IntType(32), int(str(tree[0]),2)))
             builder.store(code_gen([(tree[1][1])]), var_dict[last_var])
         else:
+            print(tree[1][1])
             builder.store(code_gen(tree[1][1]), var_dict[last_var])
 
     elif tree[0] == 'A':
+        print([tree[1][0]])
+        list1_ = tree[1][0].split(',')
+        value1 = list1_[1]
+        print(value1)
+        print(value1.isalpha())
+        print(value1.isnumeric())
+        print([tree[1][1]])
+        list2_ = tree[1][1].split(',')
+        value2 = list2_[1]
+        print(value2)
+        print(value2.isalpha())
+        print(value2.isnumeric())
         return(builder.add(code_gen([tree[1][0]]),code_gen([tree[1][1]])))
 
     elif tree[0] == 'S':
+        print([tree[1][0]])
+        list1_ = tree[1][0].split(',')
+        value1 = list1_[1]
+        print(value1)
+        print(value1.isalpha())
+        print(value1.isnumeric())
+        print([tree[1][1]])
+        list2_ = tree[1][1].split(',')
+        value2 = list2_[1]
+        print(value2)
+        print(value2.isalpha())
+        print(value2.isnumeric())
         return(builder.sub(code_gen([tree[1][0]]),code_gen([tree[1][1]])))
 
     elif tree[0] == 'M':
+        print([tree[1][0]])
+        list1_ = tree[1][0].split(',')
+        value1 = list1_[1]
+        print(value1)
+        print(value1.isalpha())
+        print(value1.isnumeric())
+        print([tree[1][1]])
+        list2_ = tree[1][1].split(',')
+        value2 = list2_[1]
+        print(value2)
+        print(value2.isalpha())
+        print(value2.isnumeric())
         return(builder.mul(code_gen([tree[1][0]]),code_gen([tree[1][1]])))
 
     elif tree[0] == 'D':
+        print([tree[1][0]])
+        list1_ = tree[1][0].split(',')
+        value1 = list1_[1]
+        print(value1)
+        print(value1.isalpha())
+        print(value1.isnumeric())
+        print([tree[1][1]])
+        list2_ = tree[1][1].split(',')
+        value2 = list2_[1]
+        print(value2)
+        print(value2.isalpha())
+        print(value2.isnumeric())
         return(builder.sdiv(code_gen([tree[1][0]]),code_gen([tree[1][1]])))
 
-    elif tree[0].isalpha():
-        return(builder.load(var_dict[tree[0]]))
+    else:
+        list_ = tree[0].split(',')
+        value = list_[1]
+        if value.isalpha():
+            return(builder.load(var_dict[tree[0]]))
 
-    elif tree[0].isnumeric():
-        return(ir.Constant(ir.IntType(32), int(str(tree[0]),2)))
+        elif tree[0].isnumeric():
+            return(ir.Constant(ir.IntType(32), int(str(tree[0]),2)))
 
 
 inttyp = ir.IntType(32) # create float type
