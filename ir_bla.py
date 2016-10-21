@@ -1,76 +1,80 @@
 from llvmlite import ir
+from my_parse_bla import get_tree
 import sys
-import parse_bla as parser
+
+last_var = ""
+var_dict = {}
+args = sys.argv
+
 
 def code_gen(tree):
     global last_var
+    first = tree[1][0]
+    second = tree[1][1]
 
+    if isinstance(tree[0], tuple):
+        tree = list(tree[0])
     if tree[0] == 'Program':
-        for t in tree[1]:
+        for t in tree[1][0:]:
             code_gen(t)
 
     elif tree[0] == '=':
-        last_var = tree[1][0]
+        last_var = first
         var_dict[last_var] = builder.alloca(ir.IntType(32))
-        builder.store(code_gen(tree[1][1]), var_dict[last_var])
+        if isinstance(second, tuple):
+            t_ = list(second)
+            builder.store(code_gen(t_), var_dict[last_var])
+        elif not isinstance(second, list) and not isinstance(second, tuple):
+            builder.store(code_gen([(second)]), var_dict[last_var])
+        else:
+            builder.store(code_gen(second), var_dict[last_var])
 
     elif tree[0] == 'A':
-        str_1 = tree[1][0]
-        str_2 = tree[1][1]
-
-        num_1 = [str_1.split(',')[1]]
-        num_2 = [str_2.split(',')[1]]
-        return(builder.add(code_gen(num_1),code_gen(num_2)))
+        return (builder.add(code_gen([first]), code_gen([second])))
 
     elif tree[0] == 'S':
-        str_1 = tree[1][0]
-        str_2 = tree[1][1]
-
-        num_1 = [str_1.split(',')[1]]
-        num_2 = [str_2.split(',')[1]]
-        return(builder.sub(code_gen(num_1),code_gen(num_2)))
+        return (builder.sub(code_gen([first]), code_gen([second])))
 
     elif tree[0] == 'M':
-        str_1 = tree[1][0]
-        str_2 = tree[1][1]
-
-        num_1 = [str_1.split(',')[1]]
-        num_2 = [str_2.split(',')[1]]
-        return(builder.mul(code_gen(num_1),code_gen(num_2)))
+        return (builder.mul(code_gen([first]), code_gen([second])))
 
     elif tree[0] == 'D':
-        str_1 = tree[1][0]
-        str_2 = tree[1][1]
+        return (builder.sdiv(code_gen([first]), code_gen([second])))
 
-        num_1 = [str_1.split(',')[1]]
-        num_2 = [str_2.split(',')[1]]
-        return(builder.div(code_gen(num_1),code_gen(num_2)))
+    elif tree[0].isalpha():
+        return (builder.load(var_dict[tree[0]]))
 
     elif tree[0].isnumeric():
-        return(ir.Constant(ir.IntType(32), int(tree[0], 2)))
+        return (ir.Constant(ir.IntType(32), int(str(tree[0]), 2)))
 
-args = sys.argv
 
-#get the compact AST
-r = open(args[1], 'r')
-tree = parser.generate_tree(r.read())
+inttyp = ir.IntType(32)
+fnctyp = ir.FunctionType(inttyp, ())
+module = ir.Module(name="bla")
+func = ir.Function(module, fnctyp, name="main")
+block = func.append_basic_block(name="entry")
+builder = ir.IRBuilder(block)
 
-#track last variable assigned
-last_var = ''
 
-#variable names associated with memory locations
-var_dict = {}
+def get_module():
+    filename = str(args[1])[:len(args[1]) - 3] + 'ir'
+    output = open(filename, 'w')
+    tree = get_tree()
 
-inttyp = ir.IntType(32) # create float type
-fnctyp = ir.FunctionType(inttyp, ()) # create function type to return a float
-module = ir.Module(name="bla") # create module named "lang"
-func = ir.Function(module, fnctyp, name="main") # create "main" function
-block = func.append_basic_block(name="entry") # create block "entry" label
-builder = ir.IRBuilder(block) # create irbuilder to generate code
-code_gen(tree) # call code_gen() to traverse tree & generate code
-builder.ret(builder.load(var_dict[last_var])) # specify return value
+    code_gen(tree)
+    builder.ret(builder.load(var_dict[last_var]))  # Specifies the return value
+    output.write(str(module))
+    return module
 
-filename = str(args[1])[0:len(str(args[1]))-3]+"ir"
-w = open(filename,'w')
-w.write(str(module))
-w.close()
+
+def main():
+    fileName = str(sys.argv[1])
+    output = open(fileName[:len(fileName) - 3] + 'ir', 'w')
+    tree = get_tree(output)
+
+    builder.ret(builder.load(var_dict[last_var]))
+    output.write(str(module))
+
+
+if __name__ == "__main__":
+    main()
