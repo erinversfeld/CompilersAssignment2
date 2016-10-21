@@ -1,15 +1,18 @@
-from run_bla import get_module, get_target, main as run
+from run_bla import get_module, get_target, main as the_other_main
 import sys
 
 def main():
-    args = sys.argv
-    filename = str(args[1])[:len(args[1])-3]+'asm'
-    output = open(filename,'w')
+    file = sys.argv[1]
+    input_file = open(file, 'r').read()
+    print(input_file)
+
+    file_name = str(file)[:len(file)-3]+'asm'
+    output_file = open(file_name,"w")
     
-    run()
+    the_other_main(len(sys.argv))
     asm = get_target().emit_assembly(get_module())
 
-    output.write(asm)
+    output_file.write(asm)
 
 if(__name__ == "__main__"):
     main()

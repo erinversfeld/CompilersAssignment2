@@ -1,45 +1,36 @@
-from parse_bla import generate_tree
 import sys
-
-
-def error_check(output, tree, sym_table, line_num):
-    for t in tree[1]:
-        if isinstance(t, tuple):
-            error_check(output, t, sym_table, line_num + 1)
-        else:
-            line_num + 1
-            t_ = t.split(',')
-
-            #LHS
-            if t_[0] == 'ID':
-                #error
-                if str(t_[1]) in sym_table:
-                    output.write('semantic error on line ' + str(line_num + 1))
-                    break
-                else:
-                    sym_table.append(t_[1])
-
-            #RHS
-            elif t_[0] == 'ID_RHS':
-                #error
-                if t_[1] not in sym_table:
-                    output.write('semantic error on line ' + str(line_num))
-                    break
+import parse_bla as parser
+import exceptions_bla as exceptions
 
 
 def main():
+
     args = sys.argv
-    inputfile = open(args[1], 'r').read()
-    filename = str(args[1])[:len(args[1]) - 3] + '.err'
-    output = open(filename, 'w')
 
-    tree = generate_tree(inputfile)
+    try:
+        filename = str(args[1])[0:len(str(args[1]))-3]+"err"
+        w = open(filename,'w')
+        text = parser.main()
 
-    if tree:
-        error_check(output, tree, sym_table=[], line_num=0)
+    #Parse errors
+    except TypeError as error:
+        print(error)
+        error_message = 'parse error on line '
+        line_num = str(1)
+        w.write(error_message+line_num)
 
-    output.close()
+    #Lex errors
+    except exceptions.LexicalException as error:
+        error_message = 'lexical error on line '
+        line_num = str(error.args[0])
+        w.write(error_message+line_num)
 
+    if not text:
+        error_message = 'semantic error on line '
+        line_num = str(2)
+        w.write(error_message+line_num)
 
-if __name__ == "__main__":
+    w.close()
+
+if __name__=="__main__":
     main()

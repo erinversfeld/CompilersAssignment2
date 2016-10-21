@@ -1,8 +1,9 @@
 import llvmlite.binding as llvm
 import sys
-
 from ctypes import CFUNCTYPE, c_int
 import ir_bla
+
+total = len(sys.argv)
 
 llvm.initialize()
 llvm.initialize_native_target()
@@ -19,7 +20,7 @@ def compile_ir(engine, irModule):
     engine.finalize_object()
     return module
 
-def create_exec_engine():
+def build_engine():
     global target_machine
     target = llvm.Target.from_default_triple()
     target_machine = target.create_target_machine()
@@ -27,25 +28,28 @@ def create_exec_engine():
     engine = llvm.create_mcjit_compiler(backing_mod, target_machine)
     return engine
 
-
-def main(): 
-    global engine,module
-    
-    fileName = str(sys.argv[1])       
-    output = open(fileName[:len(fileName)-3]+'run','w')
-    engine = create_exec_engine()
-    module = compile_ir(engine, str(ir_bla.get_module()))
-    func_ptr = engine.get_function_address("main")
-    cfunc = CFUNCTYPE(c_int)(func_ptr)
-    formatted = "{0:b}".format(cfunc()) #dec -> bin
-    output.write(formatted)
-    output.close()
-
 def get_module():
     return module
 
 def get_target():
     return target_machine
 
+def main(input):
+    if input == 2:
+        global engine,module
+
+        filename = str(sys.argv[1])[0:len(str(sys.argv[1]))-3]+"run"
+        w = open(filename,'w')
+
+        engine = build_engine()
+        module = compile_ir(engine, str(ir_bla.get_module()))
+        func_ptr = engine.get_function_address("main")
+        cfunc = CFUNCTYPE(c_int)(func_ptr)
+        formatted = "{0:b}".format(cfunc()) #dec -> bin
+        w.write(formatted)
+        w.close()
+    else:
+        print('Specify filename, e.g. parse_bla.ply my_program.bla')
+
 if(__name__ == "__main__"):
-    main()
+    main(total)

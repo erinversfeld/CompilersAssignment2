@@ -110,6 +110,27 @@ def main():
     else:
         print("Specify filename, e.g. parse_bla.ply my_program.bla")
 
+def getTree():
+    #custom helper method
+    filename = str(sys.argv[1])
+    text = open(filename, 'r').read()
+    return parser.parse(text);
+
+def output_tree(source):
+    result = parser.parse(source,tracking=True)
+    return result
+
+def get_output_tree(args):
+    #custom helper method
+    if len(args) == 2:
+        file = args[1]
+        if os.path.isfile(file):
+            f = open(file, 'r').read()
+            tree = generate_tree(f)
+            return output_tree(f)
+    else:
+        print('Specify filename, e.g. parse_bla.ply my_program.bla')
+
 
 if __name__ == "__main__":
     main()
